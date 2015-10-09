@@ -1,0 +1,68 @@
+#!/usr/bin/env node
+
+var mkdirp = require("mkdirp");
+var fs = require('fs');
+var walk = require('walk');
+var path = require('path');
+var userArgs = process.argv.slice(2);
+var src = userArgs[0];
+var _ = require('underscore');
+var rimraf = require('rimraf');
+
+if (!src) {
+  throw new Error('No src specified');
+}
+
+var contents = '';
+var walker = walk.walk(src);
+var writeFileStream = {};
+var firstFileForDir = {};
+
+walker.on('directory', function (root, dirStats, next) {
+  var languagePath = path.resolve(root.replace('/src', ''), dirStats.name);
+
+  rimraf(languagePath, function (err) {
+    if (err) {
+      throw Error(err);
+    }
+
+    mkdirp(languagePath, function (err) {
+      if (err) {
+        throw Error(err);
+      }
+      writeFileStream[dirStats.name] = require('fs').createWriteStream(path.resolve(root.replace('/src', ''), dirStats.name, 'default.json'));
+      writeFileStream[dirStats.name].write('{');
+      next();
+    });
+  });
+});
+
+walker.on('file', function (root, fileStats, next) {
+  var filePath = root.split('/');
+  var lang = filePath[filePath.length - 1];
+
+  var file = fs.createReadStream(path.resolve(root, fileStats.name));
+
+  if (!firstFileForDir[lang]) {
+    writeFileStream[lang].write('"' + fileStats.name.replace('.json', '') + '": ');
+    firstFileForDir[lang] = true;
+  } else {
+    writeFileStream[lang].write(',"' + fileStats.name.replace('.json', '') + '": ');
+  }
+
+
+  file.on('data', function (chunk) {
+    writeFileStream[lang].write(chunk);
+  });
+
+  file.on('end', function () {
+    next();
+  });
+});
+
+walker.on('end', function () {
+  _.each(writeFileStream, function (writerStream) {
+    writerStream.end('}');
+  });
+});
+
