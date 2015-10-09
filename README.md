@@ -6,7 +6,7 @@ Home office forms transpiler is a tiny tool that can be used as part of a build 
 
 ### Global installation
 
-```npm install --g hof-transpiler```
+```npm install -g hof-transpiler```
 
 ### Local installation
 
