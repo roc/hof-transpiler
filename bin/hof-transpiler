@@ -6,10 +6,33 @@ var walk = require('walk');
 var path = require('path');
 var _ = require('underscore');
 var rimraf = require('rimraf');
-var sources = process.argv.slice(2);
+var argv = require('minimist')(process.argv.slice(2));
+var sources = argv._;
+var shared = argv.s || argv.shared;
+var writeShared = argv.writeShared || argv.w;
 
 if (!sources.length) {
   throw new Error('No src specified');
+}
+
+console.log(argv.writeShared)
+
+var sindex = sources.indexOf(shared);
+if (writeShared !== true && sindex > -1) {
+  sources.splice(sindex, 1);
+}
+
+function parseFileSync(path) {
+  try {
+    return JSON.parse(fs.readFileSync(path, 'utf8'));
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+function getLanguage(path) {
+  var parts = path.split('/');
+  return parts[parts.length - 1];
 }
 
 _.each(sources, function (src) {
@@ -38,10 +61,8 @@ _.each(sources, function (src) {
   });
 
   walker.on('file', function (root, fileStats, next) {
-    var filePath = root.split('/');
-    var lang = filePath[filePath.length - 1];
-
-    var file = fs.createReadStream(path.resolve(root, fileStats.name));
+    var lang = getLanguage(root);
+    var readStream = fs.createReadStream(path.resolve(root, fileStats.name));
 
     if (!firstFileForDir[lang]) {
       writeFileStream[lang].write('"' + fileStats.name.replace('.json', '') + '": ');
@@ -50,18 +71,36 @@ _.each(sources, function (src) {
       writeFileStream[lang].write(',"' + fileStats.name.replace('.json', '') + '": ');
     }
 
-
-    file.on('data', function (chunk) {
+    readStream.on('data', function (chunk) {
       writeFileStream[lang].write(chunk);
     });
 
-    file.on('end', function () {
+    readStream.on('end', function () {
       next();
     });
   });
 
   walker.on('end', function () {
     _.each(writeFileStream, function (writerStream) {
+      var sharedMap = {};
+
+      walk.walk(shared).on('file', function (root, fileStats, next) {
+        var lang = getLanguage(root);
+        var fileName = fileStats.name.replace('.json', '');
+        var streamLang = getLanguage(path.parse(writerStream.path).dir);
+        var parsedStream = null;
+        var stringStream = '';
+
+        sharedMap[lang] = sharedMap[lang] || {};
+        sharedMap[lang][fileName] = parseFileSync(path.resolve(root, fileStats.name));
+
+        parsedStream = parseFileSync(writerStream.path);
+        _.extend(parsedStream, sharedMap[streamLang]);
+        stringStream = JSON.stringify(parsedStream, null, '\t');
+
+        fs.writeFileSync(writerStream.path, stringStream, 'utf8');
+      });
+
       writerStream.end('}');
     });
   });
