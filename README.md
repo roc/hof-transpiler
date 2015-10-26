@@ -4,23 +4,18 @@ Home office forms transpiler is a tiny tool that can be used as part of a build 
 
 ## Installation
 
-### Global installation
-
-```npm install -g hof-transpiler```
-
-### Local installation
 
 ```npm install --save-dev hof-transpiler```
 
-
-### Usage
+## Usage
 
 ```
 hof-transpiler [source dir|glob] {OPTIONS}
 
        --shared, -s  A path or glob to a directory of shared translations
 
-  --writeShared, -w  Generate a built JSON file of the the shared translations
+  --writeShared, -w  Generate a built JSON file of the the shared
+                     translations. Default setting is false.
 
 ```
 
