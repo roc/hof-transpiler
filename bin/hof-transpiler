@@ -15,8 +15,6 @@ if (!sources.length) {
   throw new Error('No src specified');
 }
 
-console.log(argv.writeShared)
-
 var sindex = sources.indexOf(shared);
 if (writeShared !== true && sindex > -1) {
   sources.splice(sindex, 1);
@@ -99,6 +97,7 @@ _.each(sources, function (src) {
         stringStream = JSON.stringify(parsedStream, null, '\t');
 
         fs.writeFileSync(writerStream.path, stringStream, 'utf8');
+        next();
       });
 
       writerStream.end('}');
