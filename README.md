@@ -55,3 +55,51 @@ Which will look something like
 ```
 
 This is used further down the hof stack for application translations.
+
+## Advanced example - duplicate keys between source folder and shared folder
+
+Lets say you have a directory such as: ```translations/src/en```
+
+Which contains:
+buttons.json containing:
+```json
+{
+  "unusual-button": "Moo"
+}
+```
+emails.json containing:
+```json
+{
+  "customer-email": "Hi how are you?"
+}
+```
+
+And you also have a directory of shared translations such as: ```shared-translations/src/en```
+
+Which contains:
+buttons.json containing:
+```json
+{
+  "common-button": "Click me"
+}
+```
+
+If you then run:
+```bash
+hof-transpiler translations/src -w --shared shared-translations/src
+```
+
+Then transpiled translations should appear in translations/en/default.json as follows:
+```json
+{
+  "buttons": {
+    "unusual-button": "Moo",
+    "common-button": "Click me"
+  },
+  "emails": {
+    "customer-email": "Hi how are you?"
+  }
+}
+```
+
+Note how a deep merge is performed between the json, with key value pairs from "buttons" being included from both files.
