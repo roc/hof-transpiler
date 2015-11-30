@@ -5,6 +5,8 @@ var fs = require('fs');
 var walk = require('walk');
 var path = require('path');
 var _ = require('underscore');
+var underscoreDeepExtend = require('underscore-deep-extend');
+_.mixin({deepExtend: underscoreDeepExtend(_)});
 var rimraf = require('rimraf');
 var argv = require('minimist')(process.argv.slice(2));
 var sources = argv._;
@@ -93,7 +95,7 @@ _.each(sources, function (src) {
         sharedMap[lang][fileName] = parseFileSync(path.resolve(root, fileStats.name));
 
         parsedStream = parseFileSync(writerStream.path);
-        _.extend(parsedStream, sharedMap[streamLang]);
+        _.deepExtend(parsedStream, sharedMap[streamLang]);
         stringStream = JSON.stringify(parsedStream, null, '\t');
 
         fs.writeFileSync(writerStream.path, stringStream, 'utf8');
