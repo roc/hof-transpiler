@@ -94,8 +94,8 @@ _.each(sources, function (src) {
         sharedMap[lang] = sharedMap[lang] || {};
         sharedMap[lang][fileName] = parseFileSync(path.resolve(root, fileStats.name));
 
-        parsedStream = parseFileSync(writerStream.path);
-        _.deepExtend(parsedStream, sharedMap[streamLang]);
+        parsedStream = sharedMap[streamLang];
+        _.deepExtend(parsedStream, parseFileSync(writerStream.path));
         stringStream = JSON.stringify(parsedStream, null, '\t');
 
         fs.writeFileSync(writerStream.path, stringStream, 'utf8');
