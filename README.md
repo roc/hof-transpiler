@@ -103,3 +103,79 @@ Then transpiled translations should appear in translations/en/default.json as fo
 ```
 
 Note how a deep merge is performed between the json, with key value pairs from "buttons" being included from both files.
+
+## Multiple shared sources
+
+hof-transpiler supports multiple shared sources, extending them from right to left. This is useful if you have translations shared between applications, and additional shared translations between routes within an application.
+
+If you have the following sources:
+
+node_modules/hof-template-partials/translations/src/en/buttons.json
+```json
+{
+  "continue": "Continue",
+  "skip": "Skip",
+  "submit": "Submit",
+  "abort": "Abort"
+}
+```
+
+common/translations/src/en/buttons.json
+```json
+{
+  "skip": "Skip this step",
+  "cancel": "Cancel"
+}
+```
+
+my-application/translations/src/en/buttons.json
+```json
+{
+  "continue": "Go Forth!"
+}
+```
+
+If you then run:
+```bash
+hof-transpiler my-application/translations/src -w --shared common/translations/src --shared node_modules/hof-template-partials/translations/src
+```
+
+You will end up with the following compiled files:
+
+node_modules/hof-template-partials/translations/en/default.json
+```json
+{
+  "buttons": {
+    "continue": "Continue",
+    "skip": "Skip",
+    "submit": "Submit",
+    "abort": "Abort"
+  }
+}
+```
+
+common/translations/en/default.json
+```json
+{
+  "buttons": {
+    "continue": "Continue",
+    "skip": "Skip this step",
+    "submit": "Submit",
+    "abort": "Abort",
+    "cancel": "Cancel"
+  }
+}
+```
+
+my-application/translations/en/default.json
+```json
+{
+  "buttons": {
+    "continue": "Go Forth!",
+    "skip": "Skip this step",
+    "submit": "Submit",
+    "abort": "Abort",
+    "cancel": "Cancel"
+  }
+}
+```
