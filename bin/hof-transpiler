@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 
-var mkdirp = require("mkdirp");
+'use strict';
+
+const parsed = require('../lib/parse-args')(process.argv.slice(2));
+let sources = parsed.sources;
+let shared = parsed.shared;
+
+var mkdirp = require('mkdirp');
 var fs = require('fs');
 var walk = require('walk');
 var path = require('path');
@@ -8,26 +14,6 @@ var _ = require('underscore');
 var underscoreDeepExtend = require('underscore-deep-extend');
 _.mixin({deepExtend: underscoreDeepExtend(_)});
 var rimraf = require('rimraf');
-var argv = require('minimist')(process.argv.slice(2));
-var sources = argv._;
-var shared = argv.s || argv.shared;
-var writeShared = argv.writeShared || argv.w;
-
-if (!Array.isArray(shared)) {
-  shared = [shared];
-}
-
-shared.reverse();
-
-if (!sources.length) {
-  throw new Error('No src specified');
-}
-
-if (writeShared !== true) {
-  sources = sources.filter(function (source) {
-    return shared.indexOf(source) === -1
-  });
-}
 
 function parseFileSync(path) {
   try {
@@ -43,7 +29,6 @@ function getLanguage(path) {
 }
 
 _.each(sources, function (src) {
-  var contents = '';
   var walker = walk.walk(src);
   var writeFileStream = {};
   var firstFileForDir = {};
