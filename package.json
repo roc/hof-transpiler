@@ -11,7 +11,6 @@
   ],
   "bin": "./bin/hof-transpiler",
   "dependencies": {
-    "commander": "^2.9.0",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
     "rimraf": "^2.4.3",
@@ -21,6 +20,9 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "mocha": "^3.0.2"
+    "eslint-plugin-mocha": "^4.5.1",
+    "mocha": "^3.0.2",
+    "proxyquire": "^1.7.10",
+    "sinon": "^1.17.5"
   }
 }
