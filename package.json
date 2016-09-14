@@ -11,11 +11,16 @@
   ],
   "bin": "./bin/hof-transpiler",
   "dependencies": {
+    "commander": "^2.9.0",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
     "rimraf": "^2.4.3",
     "underscore": "^1.8.3",
     "underscore-deep-extend": "0.0.5",
     "walk": "^2.3.9"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.0.2"
   }
 }
