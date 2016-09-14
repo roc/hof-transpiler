@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var mkdirp = require("mkdirp");
+var mkdirp = require('mkdirp');
 var fs = require('fs');
 var walk = require('walk');
 var path = require('path');
@@ -13,20 +13,13 @@ var sources = argv._;
 var shared = argv.s || argv.shared;
 var writeShared = argv.writeShared || argv.w;
 
-if (!Array.isArray(shared)) {
-  shared = [shared];
-}
-
-shared.reverse();
-
 if (!sources.length) {
   throw new Error('No src specified');
 }
 
-if (writeShared !== true) {
-  sources = sources.filter(function (source) {
-    return shared.indexOf(source) === -1
-  });
+var sindex = sources.indexOf(shared);
+if (writeShared !== true && sindex > -1) {
+  sources.splice(sindex, 1);
 }
 
 function parseFileSync(path) {
@@ -70,7 +63,6 @@ _.each(sources, function (src) {
   walker.on('file', function (root, fileStats, next) {
     var lang = getLanguage(root);
     var readStream = fs.createReadStream(path.resolve(root, fileStats.name));
-
     if (!firstFileForDir[lang]) {
       writeFileStream[lang].write('"' + fileStats.name.replace('.json', '') + '": ');
       firstFileForDir[lang] = true;
@@ -91,24 +83,23 @@ _.each(sources, function (src) {
     _.each(writeFileStream, function (writerStream) {
       var sharedMap = {};
 
-      shared.forEach(function (sharedSource) {
-        walk.walk(sharedSource).on('file', function (root, fileStats, next) {
-          var lang = getLanguage(root);
-          var fileName = fileStats.name.replace('.json', '');
-          var streamLang = getLanguage(path.parse(writerStream.path).dir);
-          var parsedStream = null;
-          var stringStream = '';
+      walk.walk(shared).on('file', function (root, fileStats, next) {
+        var lang = getLanguage(root);
+        var fileName = fileStats.name.replace('.json', '');
+        var streamLang = getLanguage(path.parse(writerStream.path).dir);
+        var parsedStream = null;
+        var stringStream = '';
 
-          sharedMap[lang] = sharedMap[lang] || {};
-          sharedMap[lang][fileName] = parseFileSync(path.resolve(root, fileStats.name));
+        sharedMap[streamLang] = sharedMap[streamLang] || {};
+        sharedMap[lang] = sharedMap[lang] || {};
+        sharedMap[lang][fileName] = parseFileSync(path.resolve(root, fileStats.name));
 
-          parsedStream = sharedMap[streamLang];
-          _.deepExtend(parsedStream, parseFileSync(writerStream.path));
-          stringStream = JSON.stringify(parsedStream, null, '\t');
+        parsedStream = sharedMap[streamLang];
+        _.deepExtend(parsedStream, parseFileSync(writerStream.path));
+        stringStream = JSON.stringify(parsedStream, null, '\t');
 
-          fs.writeFileSync(writerStream.path, stringStream, 'utf8');
-          next();
-        });
+        fs.writeFileSync(writerStream.path, stringStream, 'utf8');
+        next();
       });
 
       writerStream.end('}');
