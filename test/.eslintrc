@@ -1,3 +1,7 @@
+extends:
+  - '../.eslintrc'
+  - 'homeoffice/config/testing'
+
 env:
   mocha: true
 globals:
