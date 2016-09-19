@@ -22,8 +22,6 @@
     "chai": "^3.5.0",
     "eslint-config-homeoffice": "^1.0.0",
     "eslint-plugin-mocha": "^4.5.1",
-    "mocha": "^3.0.2",
-    "proxyquire": "^1.7.10",
-    "sinon": "^1.17.5"
+    "mocha": "^3.0.2"
   }
 }
