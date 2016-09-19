@@ -1,0 +1,25 @@
+# 0 - disable
+#     Rules that more harmful than useful, or just buggy.
+#
+# 1 - warning
+#     Rules that we didn't encounter yet.
+#     You can safely ignore them, but I'd like to know
+#     any interesting use-cases they forbid.
+#
+# 2 - error
+#     Rules that have proven to be useful, please follow them.
+#
+
+extends:
+- "homeoffice/config/default"
+
+env:
+  es6: true
+  node: true
+rules:
+  ## overides of homeoffice/config/default
+  space-before-function-paren: 0 # i <3 spaces before function parens
+  no-console: 1
+  consistent-return: off
+plugins:
+  - mocha

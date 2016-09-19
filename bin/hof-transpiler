@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 
-var mkdirp = require("mkdirp");
+'use strict';
+
+const parsed = require('../lib/parse-args')(process.argv.slice(2));
+let sources = parsed.sources;
+let shared = parsed.shared;
+
+var mkdirp = require('mkdirp');
 var fs = require('fs');
 var walk = require('walk');
 var path = require('path');
@@ -8,46 +14,26 @@ var _ = require('underscore');
 var underscoreDeepExtend = require('underscore-deep-extend');
 _.mixin({deepExtend: underscoreDeepExtend(_)});
 var rimraf = require('rimraf');
-var argv = require('minimist')(process.argv.slice(2));
-var sources = argv._;
-var shared = argv.s || argv.shared;
-var writeShared = argv.writeShared || argv.w;
 
-if (!Array.isArray(shared)) {
-  shared = [shared];
-}
-
-shared.reverse();
-
-if (!sources.length) {
-  throw new Error('No src specified');
-}
-
-if (writeShared !== true) {
-  sources = sources.filter(function (source) {
-    return shared.indexOf(source) === -1
-  });
-}
-
-function parseFileSync(path) {
+function parseFileSync(filePath) {
   try {
-    return JSON.parse(fs.readFileSync(path, 'utf8'));
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
   } catch (error) {
     throw new Error(error);
   }
 }
 
-function getLanguage(path) {
-  var parts = path.split('/');
+function getLanguage(langPath) {
+  var parts = langPath.split('/');
   return parts[parts.length - 1];
 }
 
-_.each(sources, function (src) {
-  var contents = '';
+_.each(sources, function walking (src) {
   var walker = walk.walk(src);
   var writeFileStream = {};
   var firstFileForDir = {};
 
+  /* eslint func-names:0 max-nested-callbacks:0 */
   walker.on('directory', function (root, dirStats, next) {
     var languagePath = path.resolve(root.replace('/src', ''), dirStats.name);
 
@@ -56,11 +42,17 @@ _.each(sources, function (src) {
         throw Error(err);
       }
 
-      mkdirp(languagePath, function (err) {
-        if (err) {
-          throw Error(err);
+      mkdirp(languagePath, function (mkerr) {
+        if (mkerr) {
+          throw Error(mkerr);
         }
-        writeFileStream[dirStats.name] = require('fs').createWriteStream(path.resolve(root.replace('/src', ''), dirStats.name, 'default.json'));
+        writeFileStream[dirStats.name] = require('fs')
+          .createWriteStream(
+            path.resolve(root.replace('/src', ''),
+              dirStats.name,
+              'default.json'
+            )
+          );
         writeFileStream[dirStats.name].write('{');
         next();
       });

@@ -17,5 +17,11 @@
     "underscore": "^1.8.3",
     "underscore-deep-extend": "0.0.5",
     "walk": "^2.3.9"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint-config-homeoffice": "^1.0.0",
+    "eslint-plugin-mocha": "^4.5.1",
+    "mocha": "^3.0.2"
   }
 }
