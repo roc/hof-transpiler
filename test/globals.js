@@ -1,4 +1,4 @@
 'use strict';
 
-global.chai = require('chai')
-global.should = global.chai.should()
+global.chai = require('chai');
+global.should = global.chai.should();

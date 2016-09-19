@@ -4,13 +4,13 @@ const parse = require('../../lib/parse-args');
 
 describe('parse-args', () => {
   describe('no args!', () => {
-    [[],Number(),'',null,undefined].forEach((type) => {
+    [[], Number(), '', null, undefined].forEach((type) => {
       it(`${typeof type} '${type}' should throw`, () => {
         (() => {
-          parse(type)
+          parse(type);
         }).should.throw('No src folder or pattern specified');
       });
-    })
+    });
   });
 
   describe('args!', () => {
@@ -18,13 +18,13 @@ describe('parse-args', () => {
       let result = parse(['foo/**/bar']);
 
       it('returns sources', () => result.sources.should
-        .deep.equal([ 'foo/**/bar' ]))
+        .deep.equal(['foo/**/bar']));
 
       it('shared is undefined', () => {
         should.not.exist(result.shared);
       });
 
-      it('throws with array')
+      it('throws with array');
 
     });
 
@@ -38,7 +38,7 @@ describe('parse-args', () => {
         ]);
 
         it('returns sources', () => result.sources.should
-          .deep.equal([ 'foo/**/bar' ]))
+          .deep.equal(['foo/**/bar']));
 
         it('shared is an array', () => {
           result.shared.should.be.an('Array');
@@ -48,12 +48,12 @@ describe('parse-args', () => {
           result.shared.should.deep.equal([
             'common/**/bar',
             'common/**/foo'
-          ])
+          ]);
         });
       });
       describe('with --writeShared', () => {
 
-        it('makes no actual difference to entire thing')
+        it('makes no actual difference to entire thing');
 
         let result = parse([
           'app/**/translations',
@@ -63,7 +63,7 @@ describe('parse-args', () => {
         ]);
 
         it('returns sources', () => result.sources.should
-          .deep.equal([ 'app/**/translations' ]))
+          .deep.equal(['app/**/translations']));
 
         it('shared is an array', () => {
           result.shared.should.be.an('Array');
@@ -73,7 +73,7 @@ describe('parse-args', () => {
           result.shared.should.deep.equal([
             'common/**/bar',
             'common/**/foo'
-            ])
+            ]);
         });
 
       });
